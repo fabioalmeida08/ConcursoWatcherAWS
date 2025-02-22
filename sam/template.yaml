@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda-with-containers
+
+  Sample SAM Template for lambda_with_containers
+
+Globals:
+  Function:
+    Timeout: 60 
+    LoggingConfig:
+      LogFormat: JSON
+
+Parameters:
+  TelegramBotToken:  
+    Type: String
+    Description: "ARN telegram bot token"
+
+  TelegramChatID:  
+    Type: String
+    Description: "ARN telegram chat id"
+
+  LastUpdatedDate:  
+    Type: String
+    Description: "ARN da ultima data de atualização"
+
+  SiteUrl:  
+    Type: String
+    Description: "Url do site do concurso"
+
+Resources:
+  WatcherFunction:
+    Type: AWS::Serverless::Function
+    Metadata:  # <- a partir disso é possivel criar um repositorio ecr para dar push na imagem docker criado com sam build automaticamente
+      DockerTag: latest
+      DockerContext: .
+      Dockerfile: Dockerfile
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      ImageConfig:
+        Command: ["app.lambda_handler"]
+      MemorySize: 512
+      Timeout: 60
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+                - ssm:DescribeParameters
+              Resource:
+                - !Ref TelegramBotToken
+                - !Ref TelegramChatID
+
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+                - ssm:DescribeParameters
+                - ssm:PutParameter
+              Resource: !Ref LastUpdatedDate 
+      Events:
+        TwiceADay:
+          Type: Schedule
+          Properties:
+            Schedule: "cron(0 11,21 * * ? *)"
+      Environment:
+        Variables:
+          SITE_URL: !Ref SiteUrl        
+
+Outputs:
+  WatcherFunction:
+    Description: ARN da função Lambda HelloWorld
+    Value: !GetAtt WatcherFunction.Arn
