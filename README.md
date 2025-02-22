@@ -38,6 +38,13 @@ No diretório `infra`, crie o arquivo `terraform.tfvars` utilizando as variávei
 - **Data da ultima atualização do edital** 
 ## Deploy
 
+### Clonar Repositório
+
+```bash
+$ git clone https://github.com/fabioalmeida08/ConcursoWatcherAWS.git
+$ cd ConcursoWatcherAWS
+```
+
 ### Provisionar a Infraestrutura
 provisionar os parametros com o terraform, utilize o comando:
 ```bash
@@ -65,7 +72,7 @@ $ sam remote invoke WatcherFunction
 os logs serão enviados para o terminal ou podem ser vistos através do CloudWatchLogs.
 
 ### Limpeza
-Para fazer da infraestrutura
+Para fazer a limpeza da infraestrutura
 ```bash
 $ cd ../sam
 $ sam delete
